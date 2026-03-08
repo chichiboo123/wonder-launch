@@ -72,8 +72,9 @@ export default function Index() {
       <StarField />
 
       <div className="relative z-10 flex flex-col items-center px-4 pt-14 pb-8 min-h-screen">
-        <div className="absolute top-3 right-3 z-20">
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
           <LangSwitcher />
+          <HelpButton />
         </div>
 
         <motion.div
