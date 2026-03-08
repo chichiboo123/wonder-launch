@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         display: ['"Black Han Sans"', 'sans-serif'],
-        body: ['"Jua"', 'sans-serif'],
+        body: ['"Pretendard"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

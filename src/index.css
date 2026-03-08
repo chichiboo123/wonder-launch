@@ -60,7 +60,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Jua', sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   h1, h2, h3 {
