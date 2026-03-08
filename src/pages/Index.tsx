@@ -108,14 +108,21 @@ export default function Index() {
           transition={{ delay: 0.25 }}
           className="mb-8 flex flex-col items-center"
         >
-          <div className="bg-card/80 backdrop-blur border border-border rounded-xl px-8 py-4 flex items-center gap-4">
-            <span className="text-muted-foreground text-sm">{t("totalQuestions")}</span>
-            <span
-              className="text-5xl md:text-6xl font-black text-primary tracking-widest drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]"
-              style={{ fontFamily: "'Orbitron', monospace" }}
+          <div className="bg-card/80 backdrop-blur border border-border rounded-xl px-8 py-4">
+            <motion.span
+              key={questions.length}
+              initial={{ scale: 1.3, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              className="text-5xl md:text-6xl font-black tracking-widest block text-center"
+              style={{
+                fontFamily: "'Orbitron', monospace",
+                color: `hsl(${(questions.length * 137) % 360}, 80%, 60%)`,
+                filter: `drop-shadow(0 0 16px hsl(${(questions.length * 137) % 360}, 80%, 50%))`,
+              }}
             >
               {String(questions.length).padStart(3, "0")}
-            </span>
+            </motion.span>
           </div>
         </motion.div>
 
