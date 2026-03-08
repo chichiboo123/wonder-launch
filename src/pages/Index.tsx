@@ -70,21 +70,21 @@ export default function Index() {
     <div className="relative min-h-screen overflow-hidden">
       <StarField />
 
-      <div className="relative z-10 flex flex-col items-center px-4 py-8 min-h-screen">
-        <div className="absolute top-4 right-4 z-20">
+      <div className="relative z-10 flex flex-col items-center px-4 pt-14 pb-8 min-h-screen">
+        <div className="absolute top-3 right-3 z-20">
           <LangSwitcher />
         </div>
 
         <motion.div
           initial={{ y: -40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-8"
+          className="text-center mb-6 mt-2"
         >
-          <h1 className="text-4xl md:text-6xl tracking-wide mb-2">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl tracking-wide mb-2">
             <span className="text-primary">{t("title1")}</span>{" "}
             <span className="text-accent">{t("title2")}</span>
           </h1>
-          <p className="text-muted-foreground text-lg">{t("subtitle")}</p>
+          <p className="text-muted-foreground text-base sm:text-lg">{t("subtitle")}</p>
         </motion.div>
 
         <motion.div
