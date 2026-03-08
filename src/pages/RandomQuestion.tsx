@@ -4,15 +4,22 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Shuffle } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
-import { getRandomQuestion, Question } from "@/lib/questions";
+import { apiGetRandomQuestion, Question } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 
 export default function RandomQuestion() {
   const navigate = useNavigate();
   const { t } = useLang();
-  const [question, setQuestion] = useState<Question | undefined>();
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const pickRandom = () => setQuestion(getRandomQuestion());
+  const pickRandom = () => {
+    setLoading(true);
+    apiGetRandomQuestion().then(data => {
+      setQuestion(data);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  };
 
   useEffect(() => { pickRandom(); }, []);
 
@@ -31,7 +38,9 @@ export default function RandomQuestion() {
           <span className="text-accent">{t("randomTitle")}</span> {t("randomTitleSuffix")}
         </h1>
 
-        {question ? (
+        {loading ? (
+          <p className="text-muted-foreground mt-16">Loading...</p>
+        ) : question ? (
           <motion.div
             key={question.id}
             initial={{ scale: 0.8, opacity: 0, rotate: -5 }}
@@ -42,14 +51,12 @@ export default function RandomQuestion() {
             <SatelliteIcon size={64} />
             <p className="text-xl text-foreground mt-4 leading-relaxed">{question.text}</p>
             <p className="text-sm text-muted-foreground mt-3">
-              {question.author} · 💬 {question.comments.length}
+              {question.author} · 💬 {question.comments?.length || 0}
             </p>
             <p className="text-xs text-primary mt-2">{t("clickToAnswer")}</p>
           </motion.div>
         ) : (
-          <p className="text-muted-foreground text-lg mt-16">
-            {t("noQuestionsYet")}
-          </p>
+          <p className="text-muted-foreground text-lg mt-16">{t("noQuestionsYet")}</p>
         )}
 
         <button

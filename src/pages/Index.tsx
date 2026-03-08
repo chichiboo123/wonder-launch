@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Rocket, Compass, Shuffle, Settings } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
 import LangSwitcher from "@/components/LangSwitcher";
-import { addQuestion, getQuestions, TOPICS } from "@/lib/questions";
+import { TOPICS } from "@/lib/questions";
+import { apiGetAllQuestions, apiAddQuestion, Question } from "@/lib/api";
 import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
@@ -17,7 +18,15 @@ export default function Index() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [customTopic, setCustomTopic] = useState("");
   const [launching, setLaunching] = useState(false);
-  const questions = getQuestions();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiGetAllQuestions().then(data => {
+      setQuestions(data || []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
   const toggleTopic = (value: string) => {
     setSelectedTopics((prev) =>
@@ -28,7 +37,7 @@ export default function Index() {
     }
   };
 
-  const handleLaunch = () => {
+  const handleLaunch = async () => {
     if (!author.trim()) { toast.error(t("toastName")); return; }
     if (!text.trim()) { toast.error(t("toastQuestion")); return; }
     if (text.trim().length > 300) { toast.error(t("toastLength")); return; }
@@ -43,14 +52,18 @@ export default function Index() {
     );
 
     setLaunching(true);
-    setTimeout(() => {
-      addQuestion(author.trim(), text.trim(), finalTopics);
+    try {
+      const newQ = await apiAddQuestion(author.trim(), text.trim(), finalTopics);
+      setQuestions(prev => [newQ, ...prev]);
       setText("");
       setSelectedTopics([]);
       setCustomTopic("");
-      setLaunching(false);
       toast.success(t("toastSuccess"));
-    }, 1200);
+    } catch {
+      toast.error("Failed to launch question");
+    } finally {
+      setLaunching(false);
+    }
   };
 
   return (
@@ -58,12 +71,10 @@ export default function Index() {
       <StarField />
 
       <div className="relative z-10 flex flex-col items-center px-4 py-8 min-h-screen">
-        {/* Language Switcher */}
         <div className="absolute top-4 right-4 z-20">
           <LangSwitcher />
         </div>
 
-        {/* Header */}
         <motion.div
           initial={{ y: -40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -73,12 +84,9 @@ export default function Index() {
             <span className="text-primary">{t("title1")}</span>{" "}
             <span className="text-accent">{t("title2")}</span>
           </h1>
-          <p className="text-muted-foreground text-lg">
-            {t("subtitle")}
-          </p>
+          <p className="text-muted-foreground text-lg">{t("subtitle")}</p>
         </motion.div>
 
-        {/* Navigation */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -101,7 +109,7 @@ export default function Index() {
           </button>
         </motion.div>
 
-        {/* Total question count - digital scoreboard */}
+        {/* Digital counter */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -109,20 +117,24 @@ export default function Index() {
           className="mb-8 flex flex-col items-center"
         >
           <div className="bg-card/80 backdrop-blur border border-border rounded-xl px-8 py-4">
-            <motion.span
-              key={questions.length}
-              initial={{ scale: 1.3, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              className="text-5xl md:text-6xl font-black tracking-widest block text-center"
-              style={{
-                fontFamily: "'Orbitron', monospace",
-                color: `hsl(${(questions.length * 137) % 360}, 80%, 60%)`,
-                filter: `drop-shadow(0 0 16px hsl(${(questions.length * 137) % 360}, 80%, 50%))`,
-              }}
-            >
-              {String(questions.length).padStart(3, "0")}
-            </motion.span>
+            {loading ? (
+              <span className="text-2xl text-muted-foreground">...</span>
+            ) : (
+              <motion.span
+                key={questions.length}
+                initial={{ scale: 1.3, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                className="text-5xl md:text-6xl font-black tracking-widest block text-center"
+                style={{
+                  fontFamily: "'Orbitron', monospace",
+                  color: `hsl(${(questions.length * 137) % 360}, 80%, 60%)`,
+                  filter: `drop-shadow(0 0 16px hsl(${(questions.length * 137) % 360}, 80%, 50%))`,
+                }}
+              >
+                {String(questions.length).padStart(3, "0")}
+              </motion.span>
+            )}
           </div>
         </motion.div>
 
@@ -152,9 +164,7 @@ export default function Index() {
             className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground mb-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
-          <p className="text-sm text-muted-foreground mb-2">
-            {t("topicGuide")}
-          </p>
+          <p className="text-sm text-muted-foreground mb-2">{t("topicGuide")}</p>
           <div className="flex gap-2 flex-wrap mb-2">
             {TOPICS.map((tp) => (
               <button
@@ -171,7 +181,6 @@ export default function Index() {
             ))}
           </div>
 
-          {/* Custom topic input */}
           <AnimatePresence>
             {selectedTopics.includes("etc") && (
               <motion.div
@@ -182,11 +191,8 @@ export default function Index() {
               >
                 <div className="bg-muted/50 rounded-xl p-3 mb-2 border border-border">
                   <p className="text-sm text-accent mb-2">
-                    {t("etcGuideTitle")}
-                    <br />
-                    <span className="text-xs text-muted-foreground">
-                      {t("etcGuideDesc")}
-                    </span>
+                    {t("etcGuideTitle")}<br />
+                    <span className="text-xs text-muted-foreground">{t("etcGuideDesc")}</span>
                   </p>
                   <input
                     value={customTopic}
@@ -225,7 +231,7 @@ export default function Index() {
           </button>
         </motion.div>
 
-        {/* Floating satellites */}
+        {/* Recent satellites */}
         {questions.length > 0 && (
           <div className="w-full max-w-2xl">
             <h2 className="text-lg text-muted-foreground mb-4 text-center">
@@ -250,7 +256,6 @@ export default function Index() {
           </div>
         )}
 
-        {/* Hidden admin button */}
         <button
           onClick={() => navigate("/admin")}
           className="fixed bottom-4 right-4 p-2 rounded-full text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors z-20"

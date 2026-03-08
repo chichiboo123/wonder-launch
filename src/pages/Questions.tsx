@@ -1,19 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
-import { getQuestions, getQuestionsByTopic, TOPICS } from "@/lib/questions";
+import { TOPICS } from "@/lib/questions";
+import { apiGetAllQuestions, apiGetQuestionsByTopic, Question } from "@/lib/api";
 import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 
 export default function Questions() {
   const navigate = useNavigate();
   const { t, lang } = useLang();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const questions = selectedTopic
-    ? getQuestionsByTopic(selectedTopic)
-    : getQuestions();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const fetcher = selectedTopic
+      ? apiGetQuestionsByTopic(selectedTopic)
+      : apiGetAllQuestions();
+    fetcher.then(data => {
+      setQuestions(data || []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [selectedTopic]);
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -56,7 +67,9 @@ export default function Questions() {
           ))}
         </div>
 
-        {questions.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-muted-foreground mt-16">Loading...</p>
+        ) : questions.length === 0 ? (
           <p className="text-center text-muted-foreground text-lg mt-16">
             {t("noQuestions")}<br />
             {t("noQuestionsSub")}
@@ -82,7 +95,7 @@ export default function Questions() {
                         {getTopicLabelI18n(tp, lang)}
                       </span>
                     ))}
-                    <span className="text-xs text-muted-foreground">💬 {q.comments.length}</span>
+                    <span className="text-xs text-muted-foreground">💬 {q.comments?.length || 0}</span>
                   </div>
                 </div>
               </motion.div>

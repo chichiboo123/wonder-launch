@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trash2, Pencil, Check, X } from "lucide-react";
 import StarField from "@/components/StarField";
-import { getQuestions, deleteQuestion, updateQuestion, TOPICS } from "@/lib/questions";
+import { TOPICS } from "@/lib/questions";
+import { apiGetAllQuestions, apiDeleteQuestion, apiUpdateQuestion, Question } from "@/lib/api";
 import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
@@ -17,9 +18,20 @@ export default function Admin() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [editTopics, setEditTopics] = useState<string[]>([]);
-  const [, setRefresh] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const questions = getQuestions();
+  const loadQuestions = () => {
+    setLoading(true);
+    apiGetAllQuestions().then(data => {
+      setQuestions(data || []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (authenticated) loadQuestions();
+  }, [authenticated]);
 
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
@@ -30,9 +42,9 @@ export default function Admin() {
     }
   };
 
-  const handleDelete = (id: string) => {
-    deleteQuestion(id);
-    setRefresh((r) => r + 1);
+  const handleDelete = async (id: string) => {
+    await apiDeleteQuestion(id);
+    setQuestions(prev => prev.filter(q => q.id !== id));
     toast.success(t("adminDeleted"));
   };
 
@@ -48,11 +60,11 @@ export default function Admin() {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingId && editText.trim() && editTopics.length > 0) {
-      updateQuestion(editingId, editText.trim(), editTopics);
+      await apiUpdateQuestion(editingId, editText.trim(), editTopics);
       setEditingId(null);
-      setRefresh((r) => r + 1);
+      loadQuestions();
       toast.success(t("adminSaved"));
     }
   };
@@ -117,7 +129,9 @@ export default function Admin() {
           {t("adminTotal")} {questions.length}{t("adminQuestionUnit")}
         </p>
 
-        {questions.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-muted-foreground mt-16">Loading...</p>
+        ) : questions.length === 0 ? (
           <p className="text-center text-muted-foreground mt-16">{t("adminNoQuestions")}</p>
         ) : (
           <div className="space-y-3">
@@ -172,7 +186,7 @@ export default function Admin() {
                             {getTopicLabelI18n(tp, lang)}
                           </span>
                         ))}
-                        <span className="text-xs text-muted-foreground">💬 {q.comments.length}</span>
+                        <span className="text-xs text-muted-foreground">💬 {q.comments?.length || 0}</span>
                       </div>
                     </div>
                     <button

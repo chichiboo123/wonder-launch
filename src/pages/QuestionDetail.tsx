@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Send } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
-import { getQuestionById, addComment } from "@/lib/questions";
-import { useLang, getTopicLabelI18n } from "@/lib/i18n";
+import { apiGetQuestionById, apiAddComment, Question } from "@/lib/api";
+import { useLang, getTopicLabelI18n, Lang } from "@/lib/i18n";
 import { toast } from "sonner";
 
 export default function QuestionDetail() {
@@ -14,9 +14,27 @@ export default function QuestionDetail() {
   const { t, lang } = useLang();
   const [commentAuthor, setCommentAuthor] = useState("");
   const [commentText, setCommentText] = useState("");
-  const [, setRefresh] = useState(0);
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [translationLang, setTranslationLang] = useState<Lang>(lang);
 
-  const question = getQuestionById(id || "");
+  useEffect(() => {
+    apiGetQuestionById(id || "").then(data => {
+      setQuestion(data);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen">
+        <StarField />
+        <div className="relative z-10 flex items-center justify-center min-h-screen">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!question) {
     return (
@@ -35,15 +53,27 @@ export default function QuestionDetail() {
     );
   }
 
-  const handleComment = () => {
+  const handleComment = async () => {
     if (!commentAuthor.trim()) { toast.error(t("toastAnswerName")); return; }
     if (!commentText.trim()) { toast.error(t("toastAnswerText")); return; }
     if (commentText.trim().length > 500) { toast.error(t("toastAnswerLength")); return; }
 
-    addComment(question.id, commentAuthor.trim(), commentText.trim());
-    setCommentText("");
-    setRefresh((r) => r + 1);
-    toast.success(t("toastAnswerSuccess"));
+    try {
+      const newComment = await apiAddComment(question.id, commentAuthor.trim(), commentText.trim());
+      setQuestion(prev => prev ? { ...prev, comments: [...prev.comments, newComment] } : prev);
+      setCommentText("");
+      toast.success(t("toastAnswerSuccess"));
+    } catch {
+      toast.error("Failed to post comment");
+    }
+  };
+
+  // Get translated text based on selected language
+  const getTranslatedText = () => {
+    if (translationLang === "ko" && question.text_ko) return question.text_ko;
+    if (translationLang === "en" && question.text_en) return question.text_en;
+    if (translationLang === "ja" && question.text_ja) return question.text_ja;
+    return question.text;
   };
 
   return (
@@ -80,16 +110,17 @@ export default function QuestionDetail() {
               </p>
             </div>
           </div>
-          <p className="text-xl text-foreground leading-relaxed">{question.text}</p>
+          <p className="text-xl text-foreground leading-relaxed">{getTranslatedText()}</p>
 
-          {/* Translation buttons placeholder - for future Google Sheets integration */}
+          {/* Translation buttons */}
           <div className="flex gap-2 mt-4 pt-3 border-t border-border">
             <span className="text-xs text-muted-foreground mr-1">🌐</span>
             {(["ko", "en", "ja"] as const).map((l) => (
               <button
                 key={l}
+                onClick={() => setTranslationLang(l)}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  lang === l
+                  translationLang === l
                     ? "bg-accent text-accent-foreground"
                     : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
@@ -102,12 +133,10 @@ export default function QuestionDetail() {
 
         {/* Comments */}
         <div className="mb-4">
-          <h2 className="text-lg text-primary mb-3">{t("answers")} ({question.comments.length})</h2>
+          <h2 className="text-lg text-primary mb-3">{t("answers")} ({question.comments?.length || 0})</h2>
 
-          {question.comments.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">
-              {t("noAnswers")}
-            </p>
+          {(!question.comments || question.comments.length === 0) ? (
+            <p className="text-muted-foreground text-center py-6">{t("noAnswers")}</p>
           ) : (
             <div className="space-y-3 mb-4">
               {question.comments.map((c, i) => (
