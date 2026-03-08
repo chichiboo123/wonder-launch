@@ -9,18 +9,21 @@ export interface Question {
   id: string;
   author: string;
   text: string;
-  topic: string;
+  topics: string[];
   createdAt: string;
   comments: Comment[];
 }
 
 export const TOPICS = [
-  { value: "science", label: "🔬 과학", emoji: "🔬" },
-  { value: "math", label: "🔢 수학", emoji: "🔢" },
+  { value: "imagination", label: "💭 상상", emoji: "💭" },
+  { value: "people", label: "👫 사람", emoji: "👫" },
+  { value: "dream", label: "🌙 꿈", emoji: "🌙" },
   { value: "history", label: "📜 역사", emoji: "📜" },
+  { value: "science", label: "🔬 과학·기술", emoji: "🔬" },
   { value: "nature", label: "🌿 자연", emoji: "🌿" },
-  { value: "space", label: "🚀 우주", emoji: "🚀" },
-  { value: "life", label: "💭 생활", emoji: "💭" },
+  { value: "emotion", label: "💗 마음·감정", emoji: "💗" },
+  { value: "art", label: "🎨 예술", emoji: "🎨" },
+  { value: "school", label: "🏫 학교", emoji: "🏫" },
   { value: "etc", label: "✨ 기타", emoji: "✨" },
 ];
 
@@ -29,7 +32,13 @@ const STORAGE_KEY = "question-space-data";
 function loadQuestions(): Question[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    // migrate old single-topic format
+    return parsed.map((q: any) => ({
+      ...q,
+      topics: q.topics || (q.topic ? [q.topic] : ["etc"]),
+    }));
   } catch {
     return [];
   }
@@ -48,7 +57,7 @@ export function getQuestionById(id: string): Question | undefined {
 }
 
 export function getQuestionsByTopic(topic: string): Question[] {
-  return loadQuestions().filter((q) => q.topic === topic);
+  return loadQuestions().filter((q) => q.topics.includes(topic));
 }
 
 export function getRandomQuestion(): Question | undefined {
@@ -57,13 +66,13 @@ export function getRandomQuestion(): Question | undefined {
   return questions[Math.floor(Math.random() * questions.length)];
 }
 
-export function addQuestion(author: string, text: string, topic: string): Question {
+export function addQuestion(author: string, text: string, topics: string[]): Question {
   const questions = loadQuestions();
   const newQ: Question = {
     id: crypto.randomUUID(),
     author,
     text,
-    topic,
+    topics,
     createdAt: new Date().toISOString(),
     comments: [],
   };
@@ -92,23 +101,18 @@ export function deleteQuestion(id: string) {
   saveQuestions(questions);
 }
 
-export function updateQuestion(id: string, text: string, topic: string) {
+export function updateQuestion(id: string, text: string, topics: string[]) {
   const questions = loadQuestions();
   const q = questions.find((q) => q.id === id);
   if (q) {
     q.text = text;
-    q.topic = topic;
+    q.topics = topics;
     saveQuestions(questions);
   }
 }
 
-// Apps Script integration placeholder
-// To connect with Google Apps Script, replace these functions
-// with fetch calls to your Apps Script web app URL:
-// const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL";
-// export async function syncToSheet(question: Question) {
-//   await fetch(APPS_SCRIPT_URL, {
-//     method: "POST",
-//     body: JSON.stringify(question),
-//   });
-// }
+export function getTopicLabel(value: string): string {
+  const found = TOPICS.find((t) => t.value === value);
+  if (found) return found.label;
+  return `✨ ${value}`;
+}

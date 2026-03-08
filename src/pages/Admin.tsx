@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trash2, Pencil, Check, X } from "lucide-react";
 import StarField from "@/components/StarField";
-import { getQuestions, deleteQuestion, updateQuestion, TOPICS } from "@/lib/questions";
+import { getQuestions, deleteQuestion, updateQuestion, TOPICS, getTopicLabel } from "@/lib/questions";
 import { toast } from "sonner";
 
 const ADMIN_PASSWORD = "nsn2865";
@@ -14,7 +14,7 @@ export default function Admin() {
   const [password, setPassword] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
-  const [editTopic, setEditTopic] = useState("");
+  const [editTopics, setEditTopics] = useState<string[]>([]);
   const [, setRefresh] = useState(0);
 
   const questions = getQuestions();
@@ -34,15 +34,21 @@ export default function Admin() {
     toast.success("질문이 삭제되었어요");
   };
 
-  const handleEdit = (id: string, text: string, topic: string) => {
+  const handleEdit = (id: string, text: string, topics: string[]) => {
     setEditingId(id);
     setEditText(text);
-    setEditTopic(topic);
+    setEditTopics([...topics]);
+  };
+
+  const toggleEditTopic = (value: string) => {
+    setEditTopics((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
   };
 
   const handleSave = () => {
-    if (editingId && editText.trim()) {
-      updateQuestion(editingId, editText.trim(), editTopic);
+    if (editingId && editText.trim() && editTopics.length > 0) {
+      updateQuestion(editingId, editText.trim(), editTopics);
       setEditingId(null);
       setRefresh((r) => r + 1);
       toast.success("수정 완료! ✏️");
@@ -133,9 +139,9 @@ export default function Admin() {
                       {TOPICS.map((t) => (
                         <button
                           key={t.value}
-                          onClick={() => setEditTopic(t.value)}
+                          onClick={() => toggleEditTopic(t.value)}
                           className={`px-2 py-1 rounded-full text-xs ${
-                            editTopic === t.value
+                            editTopics.includes(t.value)
                               ? "bg-secondary text-secondary-foreground"
                               : "bg-muted text-muted-foreground"
                           }`}
@@ -157,14 +163,18 @@ export default function Admin() {
                   <div className="flex items-center gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-foreground text-sm line-clamp-2">{q.text}</p>
-                      <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
-                        <span>{q.author}</span>
-                        <span>{TOPICS.find((t) => t.value === q.topic)?.label}</span>
-                        <span>💬 {q.comments.length}</span>
+                      <div className="flex gap-2 mt-1 flex-wrap items-center">
+                        <span className="text-xs text-muted-foreground">{q.author}</span>
+                        {q.topics.map((t) => (
+                          <span key={t} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
+                            {getTopicLabel(t)}
+                          </span>
+                        ))}
+                        <span className="text-xs text-muted-foreground">💬 {q.comments.length}</span>
                       </div>
                     </div>
                     <button
-                      onClick={() => handleEdit(q.id, q.text, q.topic)}
+                      onClick={() => handleEdit(q.id, q.text, q.topics)}
                       className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                     >
                       <Pencil size={16} />

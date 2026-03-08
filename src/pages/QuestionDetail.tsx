@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Send } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
-import { getQuestionById, addComment, TOPICS } from "@/lib/questions";
+import { getQuestionById, addComment, getTopicLabel } from "@/lib/questions";
 import { toast } from "sonner";
 
 export default function QuestionDetail() {
@@ -32,8 +32,6 @@ export default function QuestionDetail() {
       </div>
     );
   }
-
-  const topicInfo = TOPICS.find((t) => t.value === question.topic);
 
   const handleComment = () => {
     if (!commentAuthor.trim()) { toast.error("이름을 입력해줘!"); return; }
@@ -65,9 +63,13 @@ export default function QuestionDetail() {
           <div className="flex items-center gap-3 mb-4">
             <SatelliteIcon size={48} />
             <div>
-              <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">
-                {topicInfo?.label}
-              </span>
+              <div className="flex gap-1.5 flex-wrap">
+                {question.topics.map((t) => (
+                  <span key={t} className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">
+                    {getTopicLabel(t)}
+                  </span>
+                ))}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {question.author} · {new Date(question.createdAt).toLocaleDateString("ko-KR")}
               </p>

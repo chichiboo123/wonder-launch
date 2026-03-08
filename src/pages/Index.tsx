@@ -11,19 +11,42 @@ export default function Index() {
   const navigate = useNavigate();
   const [author, setAuthor] = useState("");
   const [text, setText] = useState("");
-  const [topic, setTopic] = useState("etc");
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [customTopic, setCustomTopic] = useState("");
   const [launching, setLaunching] = useState(false);
   const questions = getQuestions();
+
+  const toggleTopic = (value: string) => {
+    setSelectedTopics((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
+    // 기타 해제 시 커스텀 입력 초기화
+    if (value === "etc" && selectedTopics.includes("etc")) {
+      setCustomTopic("");
+    }
+  };
 
   const handleLaunch = () => {
     if (!author.trim()) { toast.error("이름을 입력해줘! 🧑‍🚀"); return; }
     if (!text.trim()) { toast.error("질문을 입력해줘! 🤔"); return; }
     if (text.trim().length > 300) { toast.error("질문은 300자 이내로 작성해줘!"); return; }
+    if (selectedTopics.length === 0) { toast.error("카테고리를 하나 이상 골라줘! 🏷️"); return; }
+    if (selectedTopics.includes("etc") && !customTopic.trim()) {
+      toast.error("기타를 골랐으면 어떤 주제인지 적어줘! ✏️");
+      return;
+    }
+
+    // 기타인 경우 커스텀 키워드로 대체
+    const finalTopics = selectedTopics.map((t) =>
+      t === "etc" ? customTopic.trim() : t
+    );
 
     setLaunching(true);
     setTimeout(() => {
-      addQuestion(author.trim(), text.trim(), topic);
+      addQuestion(author.trim(), text.trim(), finalTopics);
       setText("");
+      setSelectedTopics([]);
+      setCustomTopic("");
       setLaunching(false);
       toast.success("질문 위성이 발사되었어! 🛰️");
     }, 1200);
@@ -106,13 +129,16 @@ export default function Index() {
             className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground mb-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
-          <div className="flex gap-2 flex-wrap mb-4">
+          <p className="text-sm text-muted-foreground mb-2">
+            🏷️ 어떤 주제의 질문이야? (여러 개 고를 수 있어!)
+          </p>
+          <div className="flex gap-2 flex-wrap mb-2">
             {TOPICS.map((t) => (
               <button
                 key={t.value}
-                onClick={() => setTopic(t.value)}
+                onClick={() => toggleTopic(t.value)}
                 className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                  topic === t.value
+                  selectedTopics.includes(t.value)
                     ? "bg-primary text-primary-foreground scale-105"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
@@ -121,6 +147,35 @@ export default function Index() {
               </button>
             ))}
           </div>
+
+          {/* 기타 커스텀 입력 */}
+          <AnimatePresence>
+            {selectedTopics.includes("etc") && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-muted/50 rounded-xl p-3 mb-2 border border-border">
+                  <p className="text-sm text-accent mb-2">
+                    ✏️ '기타'를 골랐구나! 어떤 주제인지 짧게 적어줘!
+                    <br />
+                    <span className="text-xs text-muted-foreground">
+                      (예: 음식, 게임, 동물, 우주여행 등 네가 원하는 주제!)
+                    </span>
+                  </p>
+                  <input
+                    value={customTopic}
+                    onChange={(e) => setCustomTopic(e.target.value)}
+                    placeholder="내가 정한 주제를 적어봐! 🌟"
+                    maxLength={10}
+                    className="w-full px-3 py-2 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <AnimatePresence>
             {launching && (
