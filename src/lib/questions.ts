@@ -24,6 +24,7 @@ export const TOPICS = [
   { value: "emotion", label: "💗 마음·감정", emoji: "💗" },
   { value: "art", label: "🎨 예술", emoji: "🎨" },
   { value: "school", label: "🏫 학교", emoji: "🏫" },
+  { value: "worry", label: "😔 고민", emoji: "😔" },
   { value: "etc", label: "✨ 기타", emoji: "✨" },
 ];
 

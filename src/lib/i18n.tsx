@@ -143,6 +143,7 @@ const topicKeyMap: Record<string, TranslationKey> = {
   emotion: "topicEmotion",
   art: "topicArt",
   school: "topicSchool",
+  worry: "topicWorry",
   etc: "topicEtc",
 };
 
