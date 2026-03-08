@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        display: ['"Black Han Sans"', 'sans-serif'],
+        body: ['"Jua"', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +61,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        launch: "hsl(var(--launch))",
+        satellite: "hsl(var(--satellite))",
+        nebula: "hsl(var(--nebula))",
+        "star-glow": "hsl(var(--star-glow))",
       },
       borderRadius: {
         lg: "var(--radius)",
