@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
-import { getQuestions, getQuestionsByTopic, TOPICS } from "@/lib/questions";
+import { getQuestions, getQuestionsByTopic, TOPICS, getTopicLabel } from "@/lib/questions";
 
 export default function Questions() {
   const navigate = useNavigate();
@@ -74,10 +74,14 @@ export default function Questions() {
                 <SatelliteIcon index={i} size={36} />
                 <div className="flex-1 min-w-0">
                   <p className="text-foreground line-clamp-2">{q.text}</p>
-                  <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
-                    <span>{q.author}</span>
-                    <span>{TOPICS.find((t) => t.value === q.topic)?.label}</span>
-                    <span>💬 {q.comments.length}</span>
+                  <div className="flex gap-2 mt-1 flex-wrap items-center">
+                    <span className="text-xs text-muted-foreground">{q.author}</span>
+                    {q.topics.map((t) => (
+                      <span key={t} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
+                        {getTopicLabel(t)}
+                      </span>
+                    ))}
+                    <span className="text-xs text-muted-foreground">💬 {q.comments.length}</span>
                   </div>
                 </div>
               </motion.div>
