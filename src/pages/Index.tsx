@@ -101,17 +101,23 @@ export default function Index() {
           </button>
         </motion.div>
 
-        {/* Total question count */}
-        {questions.length > 0 && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.25 }}
-            className="text-muted-foreground text-sm mb-6"
-          >
-            🌌 {questions.length}{t("totalQuestions")}
-          </motion.p>
-        )}
+        {/* Total question count - digital scoreboard */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.25 }}
+          className="mb-8 flex flex-col items-center"
+        >
+          <div className="bg-card/80 backdrop-blur border border-border rounded-xl px-8 py-4 flex items-center gap-4">
+            <span className="text-muted-foreground text-sm">{t("totalQuestions")}</span>
+            <span
+              className="text-5xl md:text-6xl font-black text-primary tracking-widest drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]"
+              style={{ fontFamily: "'Orbitron', monospace" }}
+            >
+              {String(questions.length).padStart(3, "0")}
+            </span>
+          </div>
+        </motion.div>
 
         {/* Question Input Card */}
         <motion.div
