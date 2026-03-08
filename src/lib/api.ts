@@ -6,6 +6,9 @@ export interface Comment {
   author: string;
   text: string;
   createdAt: string;
+  text_ko?: string;
+  text_en?: string;
+  text_ja?: string;
 }
 
 export interface Question {
