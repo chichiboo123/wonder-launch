@@ -101,7 +101,7 @@ export default function QuestionDetail() {
               <div className="flex gap-1.5 flex-wrap">
                 {question.topics.map((tp) => (
                   <span key={tp} className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">
-                    {getTopicLabelI18n(tp, lang)}
+                    {getTopicLabelI18n(tp, translationLang)}
                   </span>
                 ))}
               </div>
