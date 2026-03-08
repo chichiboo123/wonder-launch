@@ -171,18 +171,18 @@ export default function QuestionDetail() {
             maxLength={20}
             className="w-full px-3 py-2 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground mb-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <input
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder={t("answerPlaceholder")}
               maxLength={500}
               onKeyDown={(e) => e.key === "Enter" && handleComment()}
-              className="flex-1 px-3 py-2 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               onClick={handleComment}
-              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:brightness-110 transition-all"
+              className="shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:brightness-110 transition-all"
             >
               <Send size={16} />
             </button>
