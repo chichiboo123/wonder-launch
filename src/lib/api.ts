@@ -38,7 +38,8 @@ async function fetchPost(body: Record<string, any>): Promise<any> {
 }
 
 export async function apiGetAllQuestions(): Promise<Question[]> {
-  return fetchGet("getall");
+  const data = await fetchGet("getall");
+  return (data || []).filter((q: Question) => q.id && q.text);
 }
 
 export async function apiGetQuestionById(id: string): Promise<Question | null> {
