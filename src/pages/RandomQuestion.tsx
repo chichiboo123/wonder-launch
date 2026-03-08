@@ -5,9 +5,11 @@ import { ArrowLeft, Shuffle } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
 import { getRandomQuestion, Question } from "@/lib/questions";
+import { useLang } from "@/lib/i18n";
 
 export default function RandomQuestion() {
   const navigate = useNavigate();
+  const { t } = useLang();
   const [question, setQuestion] = useState<Question | undefined>();
 
   const pickRandom = () => setQuestion(getRandomQuestion());
@@ -22,11 +24,11 @@ export default function RandomQuestion() {
           onClick={() => navigate("/")}
           className="self-start flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
-          <ArrowLeft size={18} /> 홈으로
+          <ArrowLeft size={18} /> {t("home")}
         </button>
 
         <h1 className="text-3xl mb-8">
-          <span className="text-accent">랜덤</span> 질문 🎲
+          <span className="text-accent">{t("randomTitle")}</span> {t("randomTitleSuffix")}
         </h1>
 
         {question ? (
@@ -42,11 +44,11 @@ export default function RandomQuestion() {
             <p className="text-sm text-muted-foreground mt-3">
               {question.author} · 💬 {question.comments.length}
             </p>
-            <p className="text-xs text-primary mt-2">눌러서 답변 보기 →</p>
+            <p className="text-xs text-primary mt-2">{t("clickToAnswer")}</p>
           </motion.div>
         ) : (
           <p className="text-muted-foreground text-lg mt-16">
-            아직 질문이 없어요! 🌑
+            {t("noQuestionsYet")}
           </p>
         )}
 
@@ -55,7 +57,7 @@ export default function RandomQuestion() {
           className="flex items-center gap-2 px-8 py-4 rounded-full bg-accent text-accent-foreground text-lg hover:brightness-110 transition-all"
         >
           <Shuffle size={20} />
-          다른 질문 보기!
+          {t("anotherQuestion")}
         </button>
       </div>
     </div>

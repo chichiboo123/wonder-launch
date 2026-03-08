@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Rocket, Compass, Shuffle, Shield } from "lucide-react";
+import { Rocket, Compass, Shuffle, Settings } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
+import LangSwitcher from "@/components/LangSwitcher";
 import { addQuestion, getQuestions, TOPICS } from "@/lib/questions";
+import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
 export default function Index() {
   const navigate = useNavigate();
+  const { t, lang } = useLang();
   const [author, setAuthor] = useState("");
   const [text, setText] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
@@ -20,25 +23,23 @@ export default function Index() {
     setSelectedTopics((prev) =>
       prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
     );
-    // 기타 해제 시 커스텀 입력 초기화
     if (value === "etc" && selectedTopics.includes("etc")) {
       setCustomTopic("");
     }
   };
 
   const handleLaunch = () => {
-    if (!author.trim()) { toast.error("이름을 입력해줘! 🧑‍🚀"); return; }
-    if (!text.trim()) { toast.error("질문을 입력해줘! 🤔"); return; }
-    if (text.trim().length > 300) { toast.error("질문은 300자 이내로 작성해줘!"); return; }
-    if (selectedTopics.length === 0) { toast.error("카테고리를 하나 이상 골라줘! 🏷️"); return; }
+    if (!author.trim()) { toast.error(t("toastName")); return; }
+    if (!text.trim()) { toast.error(t("toastQuestion")); return; }
+    if (text.trim().length > 300) { toast.error(t("toastLength")); return; }
+    if (selectedTopics.length === 0) { toast.error(t("toastTopic")); return; }
     if (selectedTopics.includes("etc") && !customTopic.trim()) {
-      toast.error("기타를 골랐으면 어떤 주제인지 적어줘! ✏️");
+      toast.error(t("toastEtc"));
       return;
     }
 
-    // 기타인 경우 커스텀 키워드로 대체
-    const finalTopics = selectedTopics.map((t) =>
-      t === "etc" ? customTopic.trim() : t
+    const finalTopics = selectedTopics.map((tp) =>
+      tp === "etc" ? customTopic.trim() : tp
     );
 
     setLaunching(true);
@@ -48,7 +49,7 @@ export default function Index() {
       setSelectedTopics([]);
       setCustomTopic("");
       setLaunching(false);
-      toast.success("질문 위성이 발사되었어! 🛰️");
+      toast.success(t("toastSuccess"));
     }, 1200);
   };
 
@@ -57,6 +58,11 @@ export default function Index() {
       <StarField />
 
       <div className="relative z-10 flex flex-col items-center px-4 py-8 min-h-screen">
+        {/* Language Switcher */}
+        <div className="absolute top-4 right-4 z-20">
+          <LangSwitcher />
+        </div>
+
         {/* Header */}
         <motion.div
           initial={{ y: -40, opacity: 0 }}
@@ -64,12 +70,11 @@ export default function Index() {
           className="text-center mb-8"
         >
           <h1 className="text-4xl md:text-6xl tracking-wide mb-2">
-            <span className="text-primary">질문</span>{" "}
-            <span className="text-accent">스페이스</span>{" "}
-            <span className="text-2xl md:text-4xl">🚀</span>
+            <span className="text-primary">{t("title1")}</span>{" "}
+            <span className="text-accent">{t("title2")}</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            궁금한 걸 우주로 발사하자!
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -85,23 +90,28 @@ export default function Index() {
             className="flex items-center gap-2 px-5 py-3 rounded-full bg-card border border-border hover:border-primary transition-colors text-foreground text-base"
           >
             <Compass size={18} className="text-primary" />
-            질문 탐험
+            {t("exploreBtn")}
           </button>
           <button
             onClick={() => navigate("/random")}
             className="flex items-center gap-2 px-5 py-3 rounded-full bg-card border border-border hover:border-accent transition-colors text-foreground text-base"
           >
             <Shuffle size={18} className="text-accent" />
-            랜덤 질문
-          </button>
-          <button
-            onClick={() => navigate("/admin")}
-            className="flex items-center gap-2 px-5 py-3 rounded-full bg-card border border-border hover:border-secondary transition-colors text-foreground text-base"
-          >
-            <Shield size={18} className="text-secondary" />
-            관리자
+            {t("randomBtn")}
           </button>
         </motion.div>
+
+        {/* Total question count */}
+        {questions.length > 0 && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25 }}
+            className="text-muted-foreground text-sm mb-6"
+          >
+            🌌 {questions.length}{t("totalQuestions")}
+          </motion.p>
+        )}
 
         {/* Question Input Card */}
         <motion.div
@@ -110,12 +120,12 @@ export default function Index() {
           transition={{ delay: 0.3 }}
           className="w-full max-w-lg bg-card/80 backdrop-blur-md border border-border rounded-2xl p-6 mb-10"
         >
-          <h2 className="text-xl text-primary mb-4 text-center">🛰️ 질문 위성 만들기</h2>
+          <h2 className="text-xl text-primary mb-4 text-center">{t("createTitle")}</h2>
 
           <input
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
-            placeholder="우주비행사 이름 (닉네임)"
+            placeholder={t("namePlaceholder")}
             maxLength={20}
             className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground mb-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -123,32 +133,32 @@ export default function Index() {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="궁금한 질문을 적어보세요! ✨"
+            placeholder={t("questionPlaceholder")}
             rows={3}
             maxLength={300}
             className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground mb-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
           <p className="text-sm text-muted-foreground mb-2">
-            🏷️ 어떤 주제의 질문이야? (여러 개 고를 수 있어!)
+            {t("topicGuide")}
           </p>
           <div className="flex gap-2 flex-wrap mb-2">
-            {TOPICS.map((t) => (
+            {TOPICS.map((tp) => (
               <button
-                key={t.value}
-                onClick={() => toggleTopic(t.value)}
+                key={tp.value}
+                onClick={() => toggleTopic(tp.value)}
                 className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                  selectedTopics.includes(t.value)
+                  selectedTopics.includes(tp.value)
                     ? "bg-primary text-primary-foreground scale-105"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
-                {t.label}
+                {getTopicLabelI18n(tp.value, lang)}
               </button>
             ))}
           </div>
 
-          {/* 기타 커스텀 입력 */}
+          {/* Custom topic input */}
           <AnimatePresence>
             {selectedTopics.includes("etc") && (
               <motion.div
@@ -159,16 +169,16 @@ export default function Index() {
               >
                 <div className="bg-muted/50 rounded-xl p-3 mb-2 border border-border">
                   <p className="text-sm text-accent mb-2">
-                    ✏️ '기타'를 골랐구나! 어떤 주제인지 짧게 적어줘!
+                    {t("etcGuideTitle")}
                     <br />
                     <span className="text-xs text-muted-foreground">
-                      (예: 음식, 게임, 동물, 우주여행 등 네가 원하는 주제!)
+                      {t("etcGuideDesc")}
                     </span>
                   </p>
                   <input
                     value={customTopic}
                     onChange={(e) => setCustomTopic(e.target.value)}
-                    placeholder="내가 정한 주제를 적어봐! 🌟"
+                    placeholder={t("etcInputPlaceholder")}
                     maxLength={10}
                     className="w-full px-3 py-2 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                   />
@@ -194,11 +204,11 @@ export default function Index() {
           <button
             onClick={handleLaunch}
             disabled={launching}
-            className="w-full py-4 rounded-xl bg-launch text-primary-foreground font-display text-xl tracking-wider hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-            style={{ background: "hsl(var(--launch))" }}
+            className="w-full py-4 rounded-xl text-primary-foreground text-xl tracking-wider hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            style={{ background: "hsl(var(--launch))", fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif" }}
           >
             <Rocket size={22} />
-            {launching ? "발사 중..." : "질문 발사! 🚀"}
+            {launching ? t("launching") : t("launchBtn")}
           </button>
         </motion.div>
 
@@ -206,7 +216,7 @@ export default function Index() {
         {questions.length > 0 && (
           <div className="w-full max-w-2xl">
             <h2 className="text-lg text-muted-foreground mb-4 text-center">
-              🛰️ 최근 질문 위성 ({questions.length}개)
+              🛰️ {t("recentSatellites")} ({questions.length > 6 ? 6 : questions.length})
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {questions.slice(0, 6).map((q, i) => (
@@ -226,6 +236,15 @@ export default function Index() {
             </div>
           </div>
         )}
+
+        {/* Hidden admin button */}
+        <button
+          onClick={() => navigate("/admin")}
+          className="fixed bottom-4 right-4 p-2 rounded-full text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors z-20"
+          title="Admin"
+        >
+          <Settings size={14} />
+        </button>
       </div>
     </div>
   );

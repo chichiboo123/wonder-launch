@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trash2, Pencil, Check, X } from "lucide-react";
 import StarField from "@/components/StarField";
-import { getQuestions, deleteQuestion, updateQuestion, TOPICS, getTopicLabel } from "@/lib/questions";
+import { getQuestions, deleteQuestion, updateQuestion, TOPICS } from "@/lib/questions";
+import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
 const ADMIN_PASSWORD = "nsn2865";
 
 export default function Admin() {
   const navigate = useNavigate();
+  const { t, lang } = useLang();
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -22,16 +24,16 @@ export default function Admin() {
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
       setAuthenticated(true);
-      toast.success("관리자 모드 활성화! 🔓");
+      toast.success(t("adminLoginSuccess"));
     } else {
-      toast.error("비밀번호가 틀렸어요! 🔒");
+      toast.error(t("adminLoginFail"));
     }
   };
 
   const handleDelete = (id: string) => {
     deleteQuestion(id);
     setRefresh((r) => r + 1);
-    toast.success("질문이 삭제되었어요");
+    toast.success(t("adminDeleted"));
   };
 
   const handleEdit = (id: string, text: string, topics: string[]) => {
@@ -51,7 +53,7 @@ export default function Admin() {
       updateQuestion(editingId, editText.trim(), editTopics);
       setEditingId(null);
       setRefresh((r) => r + 1);
-      toast.success("수정 완료! ✏️");
+      toast.success(t("adminSaved"));
     }
   };
 
@@ -65,27 +67,27 @@ export default function Admin() {
             animate={{ scale: 1, opacity: 1 }}
             className="bg-card/80 backdrop-blur border border-border rounded-2xl p-8 max-w-sm w-full text-center"
           >
-            <h1 className="text-2xl text-secondary mb-2">🔒 관리자 모드</h1>
-            <p className="text-muted-foreground text-sm mb-6">비밀번호를 입력하세요</p>
+            <h1 className="text-2xl text-secondary mb-2">{t("adminTitle")}</h1>
+            <p className="text-muted-foreground text-sm mb-6">{t("adminPasswordPrompt")}</p>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              placeholder="비밀번호"
+              placeholder={t("adminPasswordPlaceholder")}
               className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground mb-4 text-center text-lg focus:outline-none focus:ring-2 focus:ring-secondary"
             />
             <button
               onClick={handleLogin}
               className="w-full py-3 rounded-xl bg-secondary text-secondary-foreground text-lg hover:brightness-110 transition-all"
             >
-              입장하기
+              {t("adminEnter")}
             </button>
             <button
               onClick={() => navigate("/")}
               className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              ← 홈으로
+              ← {t("home")}
             </button>
           </motion.div>
         </div>
@@ -102,21 +104,21 @@ export default function Admin() {
             onClick={() => navigate("/")}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeft size={18} /> 홈으로
+            <ArrowLeft size={18} /> {t("home")}
           </button>
-          <span className="text-sm text-secondary">🛡️ 관리자 모드</span>
+          <span className="text-sm text-secondary">{t("adminMode")}</span>
         </div>
 
         <h1 className="text-3xl text-center mb-6">
-          <span className="text-secondary">질문</span> 관리 ⚙️
+          <span className="text-secondary">{t("adminManageTitle1")}</span> {t("adminManageTitle2")}
         </h1>
 
         <p className="text-center text-muted-foreground mb-6">
-          총 {questions.length}개의 질문
+          {t("adminTotal")} {questions.length}{t("adminQuestionUnit")}
         </p>
 
         {questions.length === 0 ? (
-          <p className="text-center text-muted-foreground mt-16">질문이 없습니다.</p>
+          <p className="text-center text-muted-foreground mt-16">{t("adminNoQuestions")}</p>
         ) : (
           <div className="space-y-3">
             {questions.map((q, i) => (
@@ -136,17 +138,17 @@ export default function Admin() {
                       rows={2}
                     />
                     <div className="flex gap-2 flex-wrap">
-                      {TOPICS.map((t) => (
+                      {TOPICS.map((tp) => (
                         <button
-                          key={t.value}
-                          onClick={() => toggleEditTopic(t.value)}
+                          key={tp.value}
+                          onClick={() => toggleEditTopic(tp.value)}
                           className={`px-2 py-1 rounded-full text-xs ${
-                            editTopics.includes(t.value)
+                            editTopics.includes(tp.value)
                               ? "bg-secondary text-secondary-foreground"
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
-                          {t.label}
+                          {getTopicLabelI18n(tp.value, lang)}
                         </button>
                       ))}
                     </div>
@@ -165,9 +167,9 @@ export default function Admin() {
                       <p className="text-foreground text-sm line-clamp-2">{q.text}</p>
                       <div className="flex gap-2 mt-1 flex-wrap items-center">
                         <span className="text-xs text-muted-foreground">{q.author}</span>
-                        {q.topics.map((t) => (
-                          <span key={t} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
-                            {getTopicLabel(t)}
+                        {q.topics.map((tp) => (
+                          <span key={tp} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
+                            {getTopicLabelI18n(tp, lang)}
                           </span>
                         ))}
                         <span className="text-xs text-muted-foreground">💬 {q.comments.length}</span>

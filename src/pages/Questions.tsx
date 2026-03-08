@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
-import { getQuestions, getQuestionsByTopic, TOPICS, getTopicLabel } from "@/lib/questions";
+import { getQuestions, getQuestionsByTopic, TOPICS } from "@/lib/questions";
+import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 
 export default function Questions() {
   const navigate = useNavigate();
+  const { t, lang } = useLang();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const questions = selectedTopic
     ? getQuestionsByTopic(selectedTopic)
@@ -21,14 +23,13 @@ export default function Questions() {
           onClick={() => navigate("/")}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
-          <ArrowLeft size={18} /> 홈으로
+          <ArrowLeft size={18} /> {t("home")}
         </button>
 
         <h1 className="text-3xl text-center mb-6">
-          <span className="text-primary">질문</span> 탐험 🔭
+          <span className="text-primary">{t("exploreTitle")}</span> {t("exploreTitleSuffix")}
         </h1>
 
-        {/* Topic filter */}
         <div className="flex gap-2 flex-wrap justify-center mb-8">
           <button
             onClick={() => setSelectedTopic(null)}
@@ -38,27 +39,27 @@ export default function Questions() {
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
-            🌌 전체
+            {t("allFilter")}
           </button>
-          {TOPICS.map((t) => (
+          {TOPICS.map((tp) => (
             <button
-              key={t.value}
-              onClick={() => setSelectedTopic(t.value)}
+              key={tp.value}
+              onClick={() => setSelectedTopic(tp.value)}
               className={`px-4 py-2 rounded-full text-sm transition-all ${
-                selectedTopic === t.value
+                selectedTopic === tp.value
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
-              {t.label}
+              {getTopicLabelI18n(tp.value, lang)}
             </button>
           ))}
         </div>
 
         {questions.length === 0 ? (
           <p className="text-center text-muted-foreground text-lg mt-16">
-            아직 질문 위성이 없어요! 🌑<br />
-            홈에서 질문을 발사해보세요!
+            {t("noQuestions")}<br />
+            {t("noQuestionsSub")}
           </p>
         ) : (
           <div className="space-y-3">
@@ -76,9 +77,9 @@ export default function Questions() {
                   <p className="text-foreground line-clamp-2">{q.text}</p>
                   <div className="flex gap-2 mt-1 flex-wrap items-center">
                     <span className="text-xs text-muted-foreground">{q.author}</span>
-                    {q.topics.map((t) => (
-                      <span key={t} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
-                        {getTopicLabel(t)}
+                    {q.topics.map((tp) => (
+                      <span key={tp} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
+                        {getTopicLabelI18n(tp, lang)}
                       </span>
                     ))}
                     <span className="text-xs text-muted-foreground">💬 {q.comments.length}</span>
