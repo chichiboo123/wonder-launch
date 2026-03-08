@@ -49,7 +49,13 @@ export default function QuestionDetail() {
       <StarField />
       <div className="relative z-10 px-4 py-8 max-w-lg mx-auto">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              navigate("/");
+            }
+          }}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft size={18} /> 뒤로가기
