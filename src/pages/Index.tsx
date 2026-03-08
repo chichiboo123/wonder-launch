@@ -6,7 +6,6 @@ import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
 import LangSwitcher from "@/components/LangSwitcher";
 import HelpButton from "@/components/HelpButton";
-import LangSwitcher from "@/components/LangSwitcher";
 import { TOPICS } from "@/lib/questions";
 import { apiGetAllQuestions, apiAddQuestion, Question } from "@/lib/api";
 import { useLang, getTopicLabelI18n } from "@/lib/i18n";
