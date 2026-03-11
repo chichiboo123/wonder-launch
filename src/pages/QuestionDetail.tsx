@@ -17,6 +17,8 @@ export default function QuestionDetail() {
   const [question, setQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState(true);
   const [translationLang, setTranslationLang] = useState<Lang>(lang);
+  const [lastCommentTime, setLastCommentTime] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     apiGetQuestionById(id || "").then(data => {
@@ -58,13 +60,34 @@ export default function QuestionDetail() {
     if (!commentText.trim()) { toast.error(t("toastAnswerText")); return; }
     if (commentText.trim().length > 500) { toast.error(t("toastAnswerLength")); return; }
 
+    // 20초 쿨다운 체크
+    if (lastCommentTime && Date.now() - lastCommentTime < 20000) {
+      toast.error(t("toastAnswerCooldown"));
+      return;
+    }
+
+    // 중복 댓글 체크
+    const trimmedText = commentText.trim();
+    const isDuplicate = question.comments?.some(
+      (c) => c.text.trim() === trimmedText
+    );
+    if (isDuplicate) {
+      toast.error(t("toastAnswerDuplicate"));
+      return;
+    }
+
+    if (submitting) return;
+    setSubmitting(true);
     try {
-      const newComment = await apiAddComment(question.id, commentAuthor.trim(), commentText.trim());
+      const newComment = await apiAddComment(question.id, commentAuthor.trim(), trimmedText);
       setQuestion(prev => prev ? { ...prev, comments: [...prev.comments, newComment] } : prev);
       setCommentText("");
+      setLastCommentTime(Date.now());
       toast.success(t("toastAnswerSuccess"));
     } catch {
       toast.error("Failed to post comment");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -182,7 +205,8 @@ export default function QuestionDetail() {
             />
             <button
               onClick={handleComment}
-              className="shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:brightness-110 transition-all"
+              disabled={submitting}
+              className="shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:brightness-110 transition-all disabled:opacity-50"
             >
               <Send size={16} />
             </button>

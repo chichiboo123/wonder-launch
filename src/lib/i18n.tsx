@@ -35,6 +35,7 @@ const translations = {
   toastTopic: { ko: "카테고리를 하나 이상 골라줘! 🏷️", en: "Pick at least one category! 🏷️", ja: "カテゴリを1つ以上選んでね！🏷️" },
   toastEtc: { ko: "기타를 골랐으면 어떤 주제인지 적어줘! ✏️", en: "Write your custom topic! ✏️", ja: "「その他」のテーマを書いてね！✏️" },
   toastSuccess: { ko: "질문 위성이 발사되었어! 🛰️", en: "Question satellite launched! 🛰️", ja: "質問衛星が発射されたよ！🛰️" },
+  toastQuestionMark: { ko: "질문스페이스의 규칙! 질문 마지막에 물음표(?)를 넣어줘 ❓", en: "Question Space rule! End your question with a '?' ❓", ja: "質問スペースのルール！質問の最後に「？」を付けてね ❓" },
 
   // Questions page
   exploreTitle: { ko: "질문", en: "Question", ja: "質問" },
@@ -56,6 +57,8 @@ const translations = {
   toastAnswerText: { ko: "답변을 입력해줘!", en: "Enter an answer!", ja: "回答を入力してね！" },
   toastAnswerLength: { ko: "답변은 500자 이내로!", en: "Answer must be under 500 characters!", ja: "回答は500文字以内で！" },
   toastAnswerSuccess: { ko: "답변이 등록되었어! ⭐", en: "Answer posted! ⭐", ja: "回答が登録されたよ！⭐" },
+  toastAnswerCooldown: { ko: "댓글은 20초 후에 다시 작성할 수 있어! ⏳", en: "You can post again after 20 seconds! ⏳", ja: "20秒後にまたコメントできるよ！⏳" },
+  toastAnswerDuplicate: { ko: "이미 똑같은 댓글이 있어! 다른 답변을 써줘 ✨", en: "That answer already exists! Write something different ✨", ja: "同じ回答がすでにあるよ！別の回答を書いてね ✨" },
 
   // Random
   randomTitle: { ko: "랜덤", en: "Random", ja: "ランダム" },

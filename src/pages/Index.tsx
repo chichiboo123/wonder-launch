@@ -41,6 +41,7 @@ export default function Index() {
   const handleLaunch = async () => {
     if (!author.trim()) { toast.error(t("toastName")); return; }
     if (!text.trim()) { toast.error(t("toastQuestion")); return; }
+    if (!/[?？]$/.test(text.trim())) { toast.error(t("toastQuestionMark")); return; }
     if (text.trim().length > 300) { toast.error(t("toastLength")); return; }
     if (selectedTopics.length === 0) { toast.error(t("toastTopic")); return; }
     if (selectedTopics.includes("etc") && !customTopic.trim()) {
