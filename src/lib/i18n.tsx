@@ -27,6 +27,11 @@ const translations = {
   launching: { ko: "발사 중...", en: "Launching...", ja: "発射中..." },
   totalQuestions: { ko: "개의 질문이 우주를 떠돌고 있어요", en: "questions floating in space", ja: "個の質問が宇宙を漂っています" },
   recentSatellites: { ko: "최근 질문 위성", en: "Recent Question Satellites", ja: "最近の質問衛星" },
+  recentSatellitesGuide: {
+    ko: "✨ 가장 최근에 발사된 새로운 질문 위성들이에요!",
+    en: "✨ These are the newest question satellites just launched!",
+    ja: "✨ 一番最近発射された新しい質問衛星だよ！",
+  },
 
   // Toasts
   toastName: { ko: "이름을 입력해줘! 🧑‍🚀", en: "Enter your name! 🧑‍🚀", ja: "名前を入力してね！🧑‍🚀" },
@@ -59,6 +64,28 @@ const translations = {
   toastAnswerSuccess: { ko: "답변이 등록되었어! ⭐", en: "Answer posted! ⭐", ja: "回答が登録されたよ！⭐" },
   toastAnswerCooldown: { ko: "댓글은 20초 후에 다시 작성할 수 있어! ⏳", en: "You can post again after 20 seconds! ⏳", ja: "20秒後にまたコメントできるよ！⏳" },
   toastAnswerDuplicate: { ko: "이미 똑같은 댓글이 있어! 다른 답변을 써줘 ✨", en: "That answer already exists! Write something different ✨", ja: "同じ回答がすでにあるよ！別の回答を書いてね ✨" },
+
+  // Ownership / edit / delete
+  origLang: { ko: "원어", en: "Original", ja: "原文" },
+  edit: { ko: "수정", en: "Edit", ja: "編集" },
+  delete: { ko: "삭제", en: "Delete", ja: "削除" },
+  save: { ko: "저장", en: "Save", ja: "保存" },
+  cancel: { ko: "취소", en: "Cancel", ja: "キャンセル" },
+  confirmDeleteQuestion: {
+    ko: "이 질문을 정말 삭제할까요? 답변도 함께 사라져요.",
+    en: "Delete this question? All answers will be removed too.",
+    ja: "この質問を削除しますか？回答も一緒に消えます。",
+  },
+  confirmDeleteComment: {
+    ko: "이 답변을 삭제할까요?",
+    en: "Delete this answer?",
+    ja: "この回答を削除しますか？",
+  },
+  toastQuestionDeleted: { ko: "질문이 삭제되었어요 🗑️", en: "Question deleted 🗑️", ja: "質問が削除されました 🗑️" },
+  toastQuestionUpdated: { ko: "질문이 수정되었어요 ✏️", en: "Question updated ✏️", ja: "質問が更新されました ✏️" },
+  toastCommentDeleted: { ko: "답변이 삭제되었어요 🗑️", en: "Answer deleted 🗑️", ja: "回答が削除されました 🗑️" },
+  toastCommentUpdated: { ko: "답변이 수정되었어요 ✏️", en: "Answer updated ✏️", ja: "回答が更新されました ✏️" },
+  myBadge: { ko: "내 글", en: "Mine", ja: "自分" },
 
   // Random
   randomTitle: { ko: "랜덤", en: "Random", ja: "ランダム" },

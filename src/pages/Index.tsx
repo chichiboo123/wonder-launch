@@ -8,6 +8,7 @@ import LangSwitcher from "@/components/LangSwitcher";
 import HelpButton from "@/components/HelpButton";
 import { TOPICS } from "@/lib/questions";
 import { apiGetAllQuestions, apiAddQuestion, Question } from "@/lib/api";
+import { addMyQuestion } from "@/lib/ownership";
 import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
@@ -56,6 +57,7 @@ export default function Index() {
     setLaunching(true);
     try {
       const newQ = await apiAddQuestion(author.trim(), text.trim(), finalTopics);
+      addMyQuestion(newQ.id);
       setQuestions(prev => [newQ, ...prev]);
       setText("");
       setSelectedTopics([]);
@@ -236,22 +238,25 @@ export default function Index() {
 
         {/* Recent satellites */}
         {questions.length > 0 && (
-          <div className="w-full max-w-2xl">
-            <h2 className="text-lg text-muted-foreground mb-4 text-center">
-              🛰️ {t("recentSatellites")} ({questions.length > 6 ? 6 : questions.length})
+          <div className="w-full max-w-3xl">
+            <h2 className="text-lg text-muted-foreground mb-1 text-center">
+              🛰️ {t("recentSatellites")} ({questions.length > 9 ? 9 : questions.length})
             </h2>
+            <p className="text-xs text-accent mb-4 text-center">
+              {t("recentSatellitesGuide")}
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {questions.slice(0, 6).map((q, i) => (
+              {questions.slice(0, 9).map((q, i) => (
                 <motion.div
                   key={q.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
+                  transition={{ delay: i * 0.08 }}
                   onClick={() => navigate(`/question/${q.id}`)}
                   className="bg-card/60 backdrop-blur border border-border rounded-xl p-4 cursor-pointer hover:border-primary transition-all hover:scale-105 flex flex-col items-center text-center gap-2"
                 >
                   <SatelliteIcon index={i} size={40} />
-                  <p className="text-sm text-foreground line-clamp-2">{q.text}</p>
+                  <p className="text-sm text-foreground line-clamp-2 break-words">{q.text}</p>
                   <span className="text-xs text-muted-foreground">{q.author}</span>
                 </motion.div>
               ))}

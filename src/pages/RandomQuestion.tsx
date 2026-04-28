@@ -49,7 +49,7 @@ export default function RandomQuestion() {
             onClick={() => navigate(`/question/${question.id}`)}
           >
             <SatelliteIcon size={64} />
-            <p className="text-xl text-foreground mt-4 leading-relaxed">{question.text}</p>
+            <p className="text-xl text-foreground mt-4 leading-relaxed break-words">{question.text}</p>
             <p className="text-sm text-muted-foreground mt-3">
               {question.author} · 💬 {question.comments?.length || 0}
             </p>
