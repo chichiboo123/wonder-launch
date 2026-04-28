@@ -6,6 +6,7 @@ import StarField from "@/components/StarField";
 import SatelliteIcon from "@/components/SatelliteIcon";
 import { TOPICS } from "@/lib/questions";
 import { apiGetAllQuestions, apiGetQuestionsByTopic, Question } from "@/lib/api";
+import { isMyQuestion } from "@/lib/ownership";
 import { useLang, getTopicLabelI18n } from "@/lib/i18n";
 
 export default function Questions() {
@@ -87,9 +88,14 @@ export default function Questions() {
               >
                 <SatelliteIcon index={i} size={36} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-foreground line-clamp-2">{q.text}</p>
+                  <p className="text-foreground line-clamp-2 break-words">{q.text}</p>
                   <div className="flex gap-2 mt-1 flex-wrap items-center">
                     <span className="text-xs text-muted-foreground">{q.author}</span>
+                    {isMyQuestion(q.id) && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/20 text-accent">
+                        {t("myBadge")}
+                      </span>
+                    )}
                     {q.topics.map((tp) => (
                       <span key={tp} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">
                         {getTopicLabelI18n(tp, lang)}

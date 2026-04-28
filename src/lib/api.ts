@@ -153,3 +153,11 @@ export async function apiDeleteQuestion(id: string): Promise<any> {
 export async function apiUpdateQuestion(id: string, text: string, topics: string[]): Promise<any> {
   return fetchPost({ action: "updatequestion", id, text, topics });
 }
+
+export async function apiDeleteComment(questionId: string, id: string): Promise<any> {
+  return fetchPost({ action: "deletecomment", questionId, id });
+}
+
+export async function apiUpdateComment(questionId: string, id: string, text: string): Promise<any> {
+  return fetchPost({ action: "updatecomment", questionId, id, text });
+}

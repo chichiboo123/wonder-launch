@@ -29,11 +29,15 @@ export default function LangSwitcher() {
 
       {open && (
         <div className="absolute top-full right-0 mt-1 bg-card/95 backdrop-blur border border-border rounded-xl overflow-hidden shadow-lg z-50 min-w-[80px]">
-          {LANG_OPTIONS.filter((o) => o.value !== lang).map((opt) => (
+          {LANG_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => { setLang(opt.value); setOpen(false); }}
-              className="w-full px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors text-center"
+              className={`w-full px-4 py-2 text-xs font-medium transition-colors text-center ${
+                opt.value === lang
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              }`}
             >
               {opt.label}
             </button>
